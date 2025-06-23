@@ -75,7 +75,7 @@
                 "revenue",
                 "company_size",
                 "location",
-                "website_visitor_count"
+                "monthly_website_visitor_count"
               ]
             }
           },
@@ -110,12 +110,12 @@
                 "nullable": true
               },
               "revenue": {
-                "type": "string",
-                "description": "Annual revenue range of the company, empty if no revenue was provided",
+                "type": "integer",
+                "description": "Annual revenue range of the company in USD, empty if no revenue was provided",
                 "nullable": true
               },
               "company_size": {
-                "type": "string",
+                "type": "integer",
                 "description": "Employee count range of the company, empty if no company size was provided",
                 "nullable": true
               },
@@ -141,8 +141,8 @@
                   }
                 }
               },
-              "website_visitor_count": {
-                "type": "string",
+              "monthly_website_visitor_count": {
+                "type": "integer",
                 "description": "Estimated monthly website visitors, empty if no query was provided",
                 "nullable": true
               }
