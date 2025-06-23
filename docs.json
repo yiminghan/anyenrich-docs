@@ -28,7 +28,7 @@
           },
           {
             "group": "Company Enrichment Endpoints ",
-            "pages": ["api-reference/endpoint/create"]
+            "pages": ["api-reference/endpoint/enrich-company"]
           }
         ]
       }

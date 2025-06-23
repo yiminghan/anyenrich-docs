@@ -1,8 +1,8 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
+    "title": "AnyEnrich API",
+    "description": "Enrich anything",
     "license": {
       "name": "MIT"
     },
@@ -10,64 +10,19 @@
   },
   "servers": [
     {
-      "url": "http://sandbox.mintlify.com"
+      "url": "https://anyenrich.com/enrich"
     }
   ],
-  "security": [
-    {
-      "bearerAuth": []
-    }
-  ],
+  "security": [{ "bearerAuth": [] }],
   "paths": {
-    "/plants": {
-      "get": {
-        "description": "Returns all plants from the system that the user has access to",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "The maximum number of results to return",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      },
+    "/company": {
       "post": {
-        "description": "Creates a new plant in the store",
+        "description": "Enrich company information based on company name or website",
         "requestBody": {
-          "description": "Plant to add to the store",
+          "description": "Company enrichment object",
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
+              "schema": { "$ref": "#/components/schemas/NewEnrichment" }
             }
           },
           "required": true
@@ -78,7 +33,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Plant"
+                  "$ref": "#/components/schemas/EnrichmentResponse"
                 }
               }
             }
@@ -92,61 +47,6 @@
                 }
               }
             }
-          }
-        }
-      }
-    },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of plant to delete",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  },
-  "webhooks": {
-    "/plant/webhook": {
-      "post": {
-        "description": "Information about a new plant added to the store",
-        "requestBody": {
-          "description": "Plant added to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Return a 200 status to indicate that the data was received successfully"
           }
         }
       }
@@ -154,47 +54,110 @@
   },
   "components": {
     "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
+      "NewEnrichment": {
         "type": "object",
         "properties": {
           "name": {
-            "description": "The name of the plant",
+            "description": "Name of the company you want to enrich.  \nYou must include either a company name or a website.",
             "type": "string"
           },
-          "tag": {
-            "description": "Tag to specify the type",
+          "website": {
+            "description": "Website of the company you want to enrich.  \nYou must include either a company name or a website.",
+            "type": "string"
+          },
+          "firmographic": {
+            "description": "Firmographic data for the company you want to enrich, include multiple values if you want to enrich for multiple firmographics.",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "industry",
+                "revenue",
+                "company_size",
+                "location",
+                "website_visitor_count"
+              ]
+            }
+          },
+          "query": {
+            "description": "Any additional enrichment queries you want to include in the enrichment request.  You can use natural language to describe the query and our AI will do the rest.",
             "type": "string"
           }
         }
       },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
+      "EnrichmentResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the enrichment request"
           },
-          {
-            "required": [
-              "id"
-            ],
+          "credits_used": {
+            "type": "integer",
+            "description": "Number of credits used for the enrichment request"
+          },
+          "credits_remaining": {
+            "type": "integer",
+            "description": "Number of credits remaining for the enrichment request"
+          },
+          "firmographic": {
             "type": "object",
+            "description": "Firmographic data that was enriched",
             "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
+              "industry": {
+                "type": "string",
+                "description": "Industry classification of the company, empty if no industry was provided",
+                "nullable": true
+              },
+              "revenue": {
+                "type": "string",
+                "description": "Annual revenue range of the company, empty if no revenue was provided",
+                "nullable": true
+              },
+              "company_size": {
+                "type": "string",
+                "description": "Employee count range of the company, empty if no company size was provided",
+                "nullable": true
+              },
+              "location": {
+                "type": "object",
+                "description": "Location of the company, empty if no location was provided",
+                "nullable": true,
+                "properties": {
+                  "country": {
+                    "type": "string",
+                    "description": "Country where the company is headquartered",
+                    "nullable": true
+                  },
+                  "state": {
+                    "type": "string",
+                    "description": "State where the company is headquartered",
+                    "nullable": true
+                  },
+                  "city": {
+                    "type": "string",
+                    "description": "City where the company is headquartered",
+                    "nullable": true
+                  }
+                }
+              },
+              "website_visitor_count": {
+                "type": "string",
+                "description": "Estimated monthly website visitors, empty if no query was provided",
+                "nullable": true
               }
             }
+          },
+          "query_response": {
+            "type": "string",
+            "description": "Response to any additional enrichment queries, empty if no query was provided",
+            "nullable": true
           }
-        ]
+        }
       },
+
       "Error": {
-        "required": [
-          "error",
-          "message"
-        ],
+        "required": ["error", "message"],
         "type": "object",
         "properties": {
           "error": {
