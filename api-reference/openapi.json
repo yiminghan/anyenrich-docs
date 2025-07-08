@@ -1,7 +1,7 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "AnyEnrich API",
+    "title": "AnyEnrich API V1",
     "description": "Enrich anything",
     "license": {
       "name": "MIT"
@@ -10,7 +10,7 @@
   },
   "servers": [
     {
-      "url": "https://anyenrich.com/enrich"
+      "url": "https://anyenrich.com/v1/enrich"
     }
   ],
   "security": [{ "bearerAuth": [] }],
