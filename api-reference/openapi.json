@@ -66,18 +66,8 @@
             "type": "string"
           },
           "firmographic": {
-            "description": "Firmographic data for the company you want to enrich, include multiple values if you want to enrich for multiple firmographics.",
-            "type": "array",
-            "items": {
-              "type": "string",
-              "enum": [
-                "industry",
-                "revenue",
-                "company_size",
-                "location",
-                "monthly_website_visitor_count"
-              ]
-            }
+            "description": "Set this to true for basic firmographic enrichment.  Includes ",
+            "type": "boolean"
           },
           "query": {
             "description": "Any additional enrichment queries you want to include in the enrichment request.  You can use natural language to describe the query and our AI will do the rest.",
