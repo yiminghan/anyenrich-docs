@@ -130,12 +130,7 @@
                     "nullable": true
                   }
                 }
-              },
-              "monthly_website_visitor_count": {
-                "type": "integer",
-                "description": "Estimated monthly website visitors, empty if no query was provided",
-                "nullable": true
-              }
+              } 
             }
           },
           "query_response": {
