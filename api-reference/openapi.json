@@ -22,18 +22,58 @@
           "description": "Company enrichment object",
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/NewEnrichment" }
+              "schema": {
+                "$ref": "#/components/schemas/CompanyEnrichmentRequest"
+              }
             }
           },
           "required": true
         },
         "responses": {
           "200": {
-            "description": "plant response",
+            "description": "Company enrichment response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/EnrichmentResponse"
+                  "$ref": "#/components/schemas/CompanyEnrichmentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contact": {
+      "post": {
+        "description": "Enrich contact information based on contact name or linkedin",
+        "requestBody": {
+          "description": "Company enrichment object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContactEnrichmentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Contact enrichment response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactEnrichmentResponse"
                 }
               }
             }
@@ -54,33 +94,37 @@
   },
   "components": {
     "schemas": {
-      "NewEnrichment": {
+      "CompanyEnrichmentRequest": {
         "type": "object",
         "properties": {
           "name": {
-            "description": "Name of the company you want to enrich.  \nYou must include either a company name or a website.",
+            "description": "Name of the company you want to enrich. \nYou must include either a company name or a website.",
             "type": "string"
           },
           "website": {
-            "description": "Website of the company you want to enrich.  \nYou must include either a company name or a website.",
+            "description": "Website of the company you want to enrich. \nYou must include either a company name or a website.",
             "type": "string"
           },
           "firmographic": {
-            "description": "Set this to true for basic firmographic enrichment.  Includes ",
+            "description": "Request firmographic data for the company you want to enrich. \n\n Consumes 1 credit.",
             "type": "boolean"
           },
           "query": {
-            "description": "Any additional enrichment queries you want to include in the enrichment request.  You can use natural language to describe the query and our AI will do the rest.",
+            "description": "Request AI queries you want to include in the enrichment request.\n You can use natural language to describe the query and our AI will do the rest.\n\nConsumes 1 Credit",
             "type": "string"
           }
         }
       },
-      "EnrichmentResponse": {
+      "CompanyEnrichmentResponse": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
             "description": "Unique identifier for the enrichment request"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["success", "info_not_found"]
           },
           "credits_used": {
             "type": "integer",
@@ -93,25 +137,31 @@
           "firmographic": {
             "type": "object",
             "description": "Firmographic data that was enriched",
+            "nullable": true,
             "properties": {
               "industry": {
                 "type": "string",
-                "description": "Industry classification of the company, empty if no industry was provided",
+                "description": "Industry classification of the company, null if information not found",
+                "nullable": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Short description of the company, null if information not found",
                 "nullable": true
               },
               "revenue": {
-                "type": "integer",
-                "description": "Annual revenue range of the company in USD, empty if no revenue was provided",
+                "type": "number",
+                "description": "Annual revenue range of the company, null if information not found",
                 "nullable": true
               },
               "company_size": {
-                "type": "integer",
-                "description": "Employee count range of the company, empty if no company size was provided",
+                "type": "number",
+                "description": "Employee count range of the company, null if information not found",
                 "nullable": true
               },
               "location": {
                 "type": "object",
-                "description": "Location of the company, empty if no location was provided",
+                "description": "Location of the company, null if information not found",
                 "nullable": true,
                 "properties": {
                   "country": {
@@ -130,13 +180,139 @@
                     "nullable": true
                   }
                 }
-              } 
+              }
             }
           },
           "query_response": {
             "type": "string",
             "description": "Response to any additional enrichment queries, empty if no query was provided",
             "nullable": true
+          }
+        }
+      },
+      "ContactEnrichmentRequest": {
+        "type": "object",
+        "properties": {
+          "linkedinIdentifier": {
+            "type": "string",
+            "description": "Linkedin Url of the contact you want to enrich. You must provide either linkedinIdentifier or nameIdentifier",
+            "nullable": true
+          },
+          "nameIdentifier": {
+            "type": "object",
+            "description": "Name and company name of the contact you want to enrich. You must provide either linkedinIdentifier or nameIdentifier",
+            "nullable": true,
+            "properties": {
+              "firstName": {
+                "type": "string",
+                "description": "First name of the contact you want to enrich"
+              },
+              "lastName": {
+                "type": "string",
+                "description": "Last name of the contact you want to enrich"
+              },
+              "companyName": {
+                "type": "string",
+                "description": "Company name the contact you want to enrich"
+              },
+              "companyWebsite": {
+                "type": "string",
+                "description": "Company website the contact you want to enrich"
+              }
+            }
+          },
+          "basicLinkedinInfo": {
+            "type": "boolean",
+            "description": "Request basic linkedin data for the contact you want to enrich.\n\nConsumes 1 credit.",
+            "nullable": true
+          },
+          "email": {
+            "type": "boolean",
+            "description": "Request email for the contact.\n\nConsumes 2 credit if a valid email is found.",
+            "nullable": true
+          },
+          "phone": {
+            "type": "boolean",
+            "description": "Request phone number for the contact.\n\nConsumes 10 credit if a valid phone number is found.",
+            "nullable": true
+          },
+          "query": {
+            "type": "string",
+            "description": "Request AI queries you want to include in the enrichment request. You can use natural language to describe the query and our AI will do the rest.\n\nConsumes 1 Credit",
+            "nullable": true
+          }
+        }
+      },
+      "ContactEnrichmentResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the enrichment request"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["success", "info_not_found"]
+          },
+          "credits_used": {
+            "type": "number",
+            "description": "Number of credits used for the enrichment request"
+          },
+          "credits_remaining": {
+            "type": "number",
+            "description": "Number of credits remaining for the enrichment request"
+          },
+          "basic_linkedin_data": {
+            "type": "object",
+            "nullable": true,
+            "description": "Firmographic data that was enriched",
+            "properties": {
+              "linkedin_bio": {
+                "type": "string",
+                "nullable": true,
+                "description": "Current linkedin bio for the contact, null if information not found"
+              },
+              "linkedin_headline": {
+                "type": "string",
+                "nullable": true,
+                "description": "Current linkedin headline for the contact, null if information not found"
+              },
+              "linkedin_current_title": {
+                "type": "string",
+                "nullable": true,
+                "description": "Current linkedin job title for the contact, null if information not found"
+              },
+              "linkedin_current_company": {
+                "type": "string",
+                "nullable": true,
+                "description": "Current linkedin company for the contact, null if information not found"
+              },
+              "linkedin_job_description": {
+                "type": "string",
+                "nullable": true,
+                "description": "Current linkedin job description for the contact, null if information not found"
+              },
+              "linkedin_education": {
+                "type": "string",
+                "nullable": true,
+                "description": "Current linkedin education information for the contact, null if information not found"
+              }
+            }
+          },
+          "email": {
+            "type": "string",
+            "nullable": true,
+            "description": "email for the contact"
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true,
+            "description": "phone for the contact"
+          },
+          "query_response": {
+            "type": "string",
+            "nullable": true,
+            "description": "Response to any additional enrichment queries, empty if no query was provided"
           }
         }
       },

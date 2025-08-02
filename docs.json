@@ -27,8 +27,11 @@
             "pages": ["api-reference/introduction"]
           },
           {
-            "group": "Company Enrichment Endpoints ",
-            "pages": ["api-reference/endpoint/enrich-company"]
+            "group": "Enrichment Endpoints ",
+            "pages": [
+              "api-reference/endpoint/enrich-company",
+              "api-reference/endpoint/enrich-contact"
+            ]
           }
         ]
       }
