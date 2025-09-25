@@ -139,6 +139,11 @@
             "description": "Firmographic data that was enriched",
             "nullable": true,
             "properties": {
+              "name": {
+                "type": "string",
+                "description": "Name of the company, null if information not found",
+                "nullable": true
+              },
               "industry": {
                 "type": "string",
                 "description": "Industry classification of the company, null if information not found",
